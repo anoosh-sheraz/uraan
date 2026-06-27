@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node -e \"const { ChromaClient } = require\\('chromadb'\\); console.log\\('chromadb ok'\\);\")",
+      "Bash(node -e \"const p = require\\('pdf-parse'\\); console.log\\('pdf-parse ok'\\);\")",
+      "Bash(node -e ' *)",
+      "Bash(node -e \"require\\('@langchain/community/vectorstores/hnswlib'\\)\")",
+      "Bash(node -e \"require\\('@langchain/community/vectorstores/faiss'\\)\")",
+      "Bash(node ingest.js)",
+      "Bash(node -e \"const p = require\\('pdf-parse'\\); console.log\\(typeof p\\); console.log\\(Object.keys\\(p\\)\\);\")",
+      "Bash(npm install *)",
+      "Bash(node -e \"require\\('@langchain/community/vectorstores/memory'\\); console.log\\('ok'\\)\")",
+      "PowerShell(netstat -ano)"
+    ]
+  }
+}

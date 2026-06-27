@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Uraan – Own Your Rise</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #3B1D66;
+            --primary-light: #52297a;
+            --primary-dark: #2a1449;
+            --gold: #C18D3C;
+            --gold-light: #d4a555;
+            --gold-dark: #a87730;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0f0a1a;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        /* ===== BACKGROUND ===== */
+        .bg-pattern {
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse at 20% 20%, rgba(59,29,102,0.6) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 80%, rgba(193,141,60,0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(59,29,102,0.3) 0%, transparent 80%);
+            background-color: #0f0a1a;
+            z-index: 0;
+        }
+
+        .bg-grid {
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(193,141,60,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(193,141,60,0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            z-index: 0;
+        }
+
+        /* ===== LAYOUT ===== */
+        html, body { height: 100%; overflow: hidden; }
+
+        .app-wrapper {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            height: 100dvh; /* handles mobile browser chrome */
+            width: 100%;
+            padding: 12px;
+        }
+
+        /* Tablet & desktop: comfortable reading width centered */
+        @media (min-width: 768px) {
+            .app-wrapper {
+                max-width: 900px;
+                margin: 0 auto;
+                padding: 16px;
+            }
+        }
+
+        /* Mobile tweaks */
+        @media (max-width: 480px) {
+            .app-wrapper { padding: 8px 8px 6px; }
+
+            .header { padding: 10px 12px; gap: 10px; border-radius: 16px; }
+            .logo-img, .logo-fallback { width: 40px; height: 40px; }
+            .brand-name { font-size: 18px; }
+            .brand-tagline { font-size: 9px; letter-spacing: 2px; }
+            .rag-pill { display: none !important; } /* too cramped on small phones */
+
+            .chat-area { padding: 12px; border-radius: 16px; gap: 10px; }
+
+            .bubble { max-width: 88%; font-size: 13px; padding: 10px 13px; }
+            .avatar { width: 28px; height: 28px; font-size: 12px; }
+
+            .welcome-icon { width: 60px; height: 60px; font-size: 26px; }
+            .welcome h2 { font-size: 17px; }
+            .welcome p { font-size: 12px; }
+            .chip { font-size: 10px; padding: 5px 11px; }
+
+            .input-area { padding: 8px 8px 8px 14px; border-radius: 16px; gap: 8px; }
+            .input-area textarea { font-size: 13px; }
+            .send-btn { width: 38px; height: 38px; border-radius: 12px; }
+
+            .footer-note { font-size: 9px; margin-top: 5px; }
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            background: rgba(59,29,102,0.4);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(193,141,60,0.2);
+            border-radius: 20px;
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 12px;
+            flex-shrink: 0;
+        }
+
+        .logo-img {
+            width: 52px;
+            height: 52px;
+            object-fit: contain;
+            filter: drop-shadow(0 0 8px rgba(193,141,60,0.4));
+        }
+
+        .logo-fallback {
+            width: 52px;
+            height: 52px;
+            background: linear-gradient(135deg, var(--primary), var(--gold));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+            box-shadow: 0 0 20px rgba(193,141,60,0.3);
+        }
+
+        .brand-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 22px;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: 2px;
+            line-height: 1;
+        }
+
+        .brand-tagline {
+            font-size: 10px;
+            color: var(--gold);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-top: 3px;
+            font-weight: 500;
+        }
+
+        .header-right {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .rag-pill {
+            display: none;
+            align-items: center;
+            gap: 5px;
+            font-size: 10px;
+            color: var(--gold);
+            background: rgba(193,141,60,0.1);
+            border: 1px solid rgba(193,141,60,0.3);
+            border-radius: 99px;
+            padding: 4px 10px;
+            font-weight: 500;
+        }
+        .rag-pill.show { display: flex; }
+
+        .clear-btn {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.05);
+            color: rgba(255,255,255,0.4);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        .clear-btn:hover {
+            background: rgba(220,38,38,0.15);
+            border-color: rgba(220,38,38,0.3);
+            color: #f87171;
+        }
+
+        /* ===== CHAT AREA ===== */
+        .chat-area {
+            flex: 1;
+            background: rgba(15,10,26,0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(193,141,60,0.12);
+            border-radius: 20px;
+            overflow-y: auto;
+            padding: 20px;
+            margin-bottom: 12px;
+            scroll-behavior: smooth;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .chat-area::-webkit-scrollbar { width: 4px; }
+        .chat-area::-webkit-scrollbar-track { background: transparent; }
+        .chat-area::-webkit-scrollbar-thumb { background: rgba(193,141,60,0.2); border-radius: 4px; }
+
+        /* ===== WELCOME ===== */
+        .welcome {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            text-align: center;
+            padding: 30px 20px;
+        }
+
+        .welcome-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, rgba(59,29,102,0.8), rgba(193,141,60,0.3));
+            border: 1px solid rgba(193,141,60,0.3);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            margin-bottom: 16px;
+            box-shadow: 0 0 40px rgba(193,141,60,0.15);
+        }
+
+        .welcome h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 20px;
+            color: #fff;
+            margin: 0 0 8px;
+        }
+
+        .welcome p {
+            font-size: 13px;
+            color: rgba(255,255,255,0.4);
+            max-width: 300px;
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        .welcome-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .chip {
+            font-size: 11px;
+            color: rgba(255,255,255,0.6);
+            background: rgba(59,29,102,0.4);
+            border: 1px solid rgba(193,141,60,0.2);
+            border-radius: 99px;
+            padding: 6px 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .chip:hover {
+            background: rgba(59,29,102,0.7);
+            border-color: rgba(193,141,60,0.5);
+            color: #fff;
+        }
+
+        /* ===== MESSAGES ===== */
+        .msg-row {
+            display: flex;
+            gap: 10px;
+            animation: fadeUp 0.3s ease;
+        }
+        .msg-row.user { flex-direction: row-reverse; }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            margin-top: 2px;
+        }
+
+        .avatar-bot {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            border: 1px solid rgba(193,141,60,0.3);
+            box-shadow: 0 0 12px rgba(59,29,102,0.5);
+        }
+
+        .avatar-user {
+            background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+            border: 1px solid rgba(193,141,60,0.4);
+        }
+
+        .bubble {
+            max-width: 75%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            font-size: 13.5px;
+            line-height: 1.65;
+            word-break: break-word;
+        }
+
+        .bubble-bot {
+            background: rgba(59,29,102,0.35);
+            border: 1px solid rgba(193,141,60,0.15);
+            border-bottom-left-radius: 4px;
+            color: rgba(255,255,255,0.9);
+        }
+
+        .bubble-user {
+            background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+            border-bottom-right-radius: 4px;
+            color: #1a0a00;
+            font-weight: 500;
+        }
+
+        /* Crisis style */
+        .bubble-crisis {
+            background: rgba(100,20,20,0.4) !important;
+            border: 1px solid rgba(220,38,38,0.4) !important;
+            animation: pulseCrisis 2s infinite;
+        }
+        @keyframes pulseCrisis {
+            0%, 100% { border-color: rgba(220,38,38,0.4); }
+            50% { border-color: rgba(220,38,38,0.8); }
+        }
+
+        /* Markdown inside bot bubble */
+        .bubble-bot p { margin: 0 0 8px; }
+        .bubble-bot p:last-child { margin-bottom: 0; }
+        .bubble-bot strong { color: var(--gold-light); font-weight: 600; }
+        .bubble-bot ul, .bubble-bot ol { padding-left: 18px; margin: 6px 0; }
+        .bubble-bot li { margin-bottom: 5px; }
+        .bubble-bot a { color: var(--gold-light); text-decoration: underline; }
+        .bubble-bot h3 { color: #fff; font-size: 14px; margin: 10px 0 6px; }
+        .bubble-bot code { background: rgba(193,141,60,0.1); padding: 1px 5px; border-radius: 4px; font-size: 12px; }
+        .bubble-bot hr { border-color: rgba(193,141,60,0.15); margin: 10px 0; }
+
+        /* RAG badge */
+        .rag-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 10px;
+            color: var(--gold);
+            background: rgba(193,141,60,0.08);
+            border: 1px solid rgba(193,141,60,0.2);
+            border-radius: 99px;
+            padding: 3px 9px;
+            margin-top: 8px;
+            font-weight: 500;
+        }
+
+        /* ===== TYPING ===== */
+        .typing-bubble {
+            background: rgba(59,29,102,0.35);
+            border: 1px solid rgba(193,141,60,0.15);
+            border-radius: 18px;
+            border-bottom-left-radius: 4px;
+            padding: 14px 18px;
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+        .dot {
+            width: 7px; height: 7px;
+            background: var(--gold);
+            border-radius: 50%;
+            opacity: 0.6;
+            animation: dotBounce 1.4s infinite both;
+        }
+        .dot:nth-child(2) { animation-delay: 0.2s; }
+        .dot:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes dotBounce {
+            0%, 80%, 100% { transform: translateY(0) scale(0.8); opacity: 0.4; }
+            40% { transform: translateY(-6px) scale(1); opacity: 1; }
+        }
+
+        /* ===== INPUT AREA ===== */
+        .input-area {
+            background: rgba(59,29,102,0.3);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(193,141,60,0.2);
+            border-radius: 20px;
+            padding: 12px 12px 12px 18px;
+            display: flex;
+            align-items: flex-end;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .input-area textarea {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            resize: none;
+            line-height: 1.5;
+            max-height: 120px;
+            min-height: 22px;
+        }
+
+        .input-area textarea::placeholder { color: rgba(255,255,255,0.25); }
+
+        .send-btn {
+            width: 42px;
+            height: 42px;
+            border-radius: 14px;
+            border: none;
+            background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+            color: #1a0a00;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.2s;
+            box-shadow: 0 4px 15px rgba(193,141,60,0.3);
+        }
+        .send-btn:hover { transform: scale(1.05); box-shadow: 0 6px 20px rgba(193,141,60,0.4); }
+        .send-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+        .send-btn svg { width: 18px; height: 18px; }
+
+        /* ===== FOOTER ===== */
+        .footer-note {
+            text-align: center;
+            font-size: 10px;
+            color: rgba(255,255,255,0.2);
+            margin-top: 8px;
+            flex-shrink: 0;
+        }
+        .footer-note a { color: rgba(193,141,60,0.6); text-decoration: none; }
+        .footer-note a:hover { color: var(--gold); }
+
+        /* ===== SCROLLBAR ===== */
+        * { scrollbar-width: thin; scrollbar-color: rgba(193,141,60,0.2) transparent; }
+    </style>
+</head>
+<body>
+    <div class="bg-pattern"></div>
+    <div class="bg-grid"></div>
+
+    <div class="app-wrapper">
+
+        <!-- HEADER -->
+        <div class="header">
+            <img src="logo.png" alt="Uraan" class="logo-img" onerror="this.style.display='none'; document.getElementById('logoFallback').style.display='flex';">
+            <div class="logo-fallback" id="logoFallback" style="display:none;">🕊️</div>
+            <div>
+                <div class="brand-name">URAAN</div>
+                <div class="brand-tagline">Own Your Rise</div>
+            </div>
+            <div class="header-right">
+                <div class="rag-pill" id="ragPill">📚 PDF Knowledge Active</div>
+                <button class="clear-btn" onclick="clearChat()" title="Clear conversation">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="15" height="15">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- CHAT AREA -->
+        <div class="chat-area" id="chatArea">
+            <div class="welcome" id="welcome">
+                <div class="welcome-icon">🕊️</div>
+                <h2>How are you feeling today?</h2>
+                <p>I'm here to listen, support, and help you rise above what you're going through.</p>
+                <div class="welcome-chips">
+                    <div class="chip" onclick="quickSend('I\'m feeling anxious and overwhelmed')">😰 Feeling anxious</div>
+                    <div class="chip" onclick="quickSend('I\'ve been feeling really sad lately')">😢 Feeling sad</div>
+                    <div class="chip" onclick="quickSend('I can\'t sleep and I\'m exhausted')">😴 Sleep issues</div>
+                    <div class="chip" onclick="quickSend('I\'m struggling with my relationship')">💔 Relationship stress</div>
+                    <div class="chip" onclick="quickSend('I feel angry and frustrated all the time')">😤 Feeling angry</div>
+                    <div class="chip" onclick="quickSend('I need help managing stress at work')">💼 Work stress</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- INPUT AREA -->
+        <div class="input-area">
+            <textarea
+                id="msgInput"
+                placeholder="Share what's on your mind..."
+                rows="1"
+                onkeydown="handleKey(event)"
+                oninput="autoResize(this)"
+            ></textarea>
+            <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+                </svg>
+            </button>
+        </div>
+
+        <!-- FOOTER -->
+        <div class="footer-note">
+            ⚠️ Not a replacement for professional help. &nbsp;
+            <a href="#" onclick="showCrisis(); return false;">Crisis resources</a>
+        </div>
+
+    </div>
+
+    <script>
+        const API_URL = window.location.origin + '/api';
+        let sessionId = 'user_' + Date.now();
+        let isWaiting = false;
+
+        marked.setOptions({ breaks: true, gfm: true });
+
+        function safeMarkdown(text) {
+            return marked.parse(text).replace(/<script[\s\S]*?<\/script>/gi, '');
+        }
+
+        function autoResize(el) {
+            el.style.height = 'auto';
+            el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+        }
+
+        function handleKey(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        }
+
+        function removeWelcome() {
+            const w = document.getElementById('welcome');
+            if (w) w.remove();
+        }
+
+        function scrollToBottom() {
+            const area = document.getElementById('chatArea');
+            area.scrollTop = area.scrollHeight;
+        }
+
+        function addMessage(text, role, { usedRAG = false, sources = [], isCrisis = false } = {}) {
+            removeWelcome();
+            const area = document.getElementById('chatArea');
+
+            const row = document.createElement('div');
+            row.className = `msg-row ${role}`;
+
+            const avatar = document.createElement('div');
+            avatar.className = `avatar ${role === 'bot' ? 'avatar-bot' : 'avatar-user'}`;
+            avatar.textContent = role === 'bot' ? '🕊️' : '👤';
+
+            const bubble = document.createElement('div');
+            bubble.className = `bubble ${role === 'bot' ? 'bubble-bot' : 'bubble-user'}`;
+            if (isCrisis) bubble.classList.add('bubble-crisis');
+
+            if (role === 'bot') {
+                bubble.innerHTML = safeMarkdown(text);
+                if (usedRAG && sources.length > 0) {
+                    const badge = document.createElement('div');
+                    badge.className = 'rag-badge';
+                    badge.innerHTML = `📚 ${sources.map(s => s.replace('.pdf','')).join(', ')}`;
+                    bubble.appendChild(badge);
+                    document.getElementById('ragPill').classList.add('show');
+                }
+            } else {
+                bubble.textContent = text;
+            }
+
+            row.appendChild(avatar);
+            row.appendChild(bubble);
+            area.appendChild(row);
+            scrollToBottom();
+        }
+
+        function showTyping() {
+            removeWelcome();
+            const area = document.getElementById('chatArea');
+            const row = document.createElement('div');
+            row.className = 'msg-row bot';
+            row.id = 'typingRow';
+
+            const avatar = document.createElement('div');
+            avatar.className = 'avatar avatar-bot';
+            avatar.textContent = '🕊️';
+
+            const bubble = document.createElement('div');
+            bubble.className = 'typing-bubble';
+            bubble.innerHTML = '<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
+
+            row.appendChild(avatar);
+            row.appendChild(bubble);
+            area.appendChild(row);
+            scrollToBottom();
+        }
+
+        function removeTyping() {
+            const el = document.getElementById('typingRow');
+            if (el) el.remove();
+        }
+
+        async function sendMessage() {
+            if (isWaiting) return;
+            const input = document.getElementById('msgInput');
+            const text = input.value.trim();
+            if (!text) return;
+
+            addMessage(text, 'user');
+            input.value = '';
+            input.style.height = 'auto';
+            isWaiting = true;
+            document.getElementById('sendBtn').disabled = true;
+            showTyping();
+
+            try {
+                const res = await fetch(`${API_URL}/chat`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: text, sessionId })
+                });
+                const data = await res.json();
+                removeTyping();
+                addMessage(data.response, 'bot', {
+                    usedRAG: data.usedRAG,
+                    sources: data.sources || [],
+                    isCrisis: !!data.crisis
+                });
+            } catch {
+                removeTyping();
+                addMessage("I'm having trouble connecting. Please try again. 💙", 'bot');
+            } finally {
+                isWaiting = false;
+                document.getElementById('sendBtn').disabled = false;
+                document.getElementById('msgInput').focus();
+            }
+        }
+
+        function quickSend(text) {
+            document.getElementById('msgInput').value = text;
+            sendMessage();
+        }
+
+        async function clearChat() {
+            if (!confirm('Clear this conversation?')) return;
+            await fetch(`${API_URL}/history/${sessionId}`, { method: 'DELETE' }).catch(() => {});
+            sessionId = 'user_' + Date.now();
+            document.getElementById('ragPill').classList.remove('show');
+            const area = document.getElementById('chatArea');
+            area.innerHTML = `
+                <div class="welcome" id="welcome">
+                    <div class="welcome-icon">🕊️</div>
+                    <h2>How are you feeling today?</h2>
+                    <p>I'm here to listen, support, and help you rise above what you're going through.</p>
+                    <div class="welcome-chips">
+                        <div class="chip" onclick="quickSend('I\\'m feeling anxious and overwhelmed')">😰 Feeling anxious</div>
+                        <div class="chip" onclick="quickSend('I\\'ve been feeling really sad lately')">😢 Feeling sad</div>
+                        <div class="chip" onclick="quickSend('I can\\'t sleep and I\\'m exhausted')">😴 Sleep issues</div>
+                        <div class="chip" onclick="quickSend('I\\'m struggling with my relationship')">💔 Relationship stress</div>
+                        <div class="chip" onclick="quickSend('I feel angry and frustrated all the time')">😤 Feeling angry</div>
+                        <div class="chip" onclick="quickSend('I need help managing stress at work')">💼 Work stress</div>
+                    </div>
+                </div>`;
+        }
+
+        function showCrisis() {
+            addMessage(`💙 **If you're in crisis, help is available right now:**
+
+📞 **Umang Helpline (Pakistan)**: 0317-4288665
+📞 **988 Suicide & Crisis Lifeline** (US): Call or text **988**
+📞 **Crisis Text Line**: Text HOME to **741741**
+🌐 **Befrienders Worldwide**: https://www.befrienders.org/
+🏥 **Go to your nearest emergency room**
+
+You are not alone. You matter. Please reach out. ❤️`, 'bot', { isCrisis: true });
+        }
+
+        window.onload = () => document.getElementById('msgInput').focus();
+    </script>
+</body>
+</html>
